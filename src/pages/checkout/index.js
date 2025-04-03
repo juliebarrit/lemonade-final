@@ -29,7 +29,8 @@ export default function CheckoutPage() {
         setOrderCart(JSON.parse(savedOrder));
       }
     }
-  }, [isClient]);
+}, [isClient, cartItems, dispatch]);
+
 
   if (!isClient || orderCart.length === 0) return null;
 

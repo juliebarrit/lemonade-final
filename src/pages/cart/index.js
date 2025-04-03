@@ -96,9 +96,6 @@ export default function CartPage() {
             <p>
               <strong>Price:</strong> {totalPrice} DKK
             </p>
-            <p>
-              <strong>Total Lemons Used:</strong> {totalLemons}
-            </p>
             <Button
               variant="success"
               className="mt-2 me-2"
