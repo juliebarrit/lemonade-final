@@ -1,21 +1,19 @@
-// lib/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // ← hvis du bruger Firestore
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDStxN_XPtZqe96aM1SzXA7WjpK5KDXN04",
-  authDomain: "lemonade-fc794.firebaseapp.com",
-  projectId: "lemonade-fc794",
-  storageBucket: "lemonade-fc794.appspot.com",
-  messagingSenderId: "661908816085",
-  appId: "1:661908816085:web:21d99f5ffb3b7468e7625c",
-  measurementId: "G-79N7VD2H4S"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 
-// Optional: Only run analytics if supported (prevents Next.js SSR issues)
 let analytics = null;
 if (typeof window !== "undefined") {
   isSupported().then((yes) => {
@@ -23,7 +21,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-// Firestore init (you can also export auth, storage, etc.)
 const db = getFirestore(app);
 
 export { app, analytics, db };

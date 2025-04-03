@@ -23,10 +23,10 @@ export default function HeroSection() {
         }}
       >
         <h1 style={{ fontSize: '3rem', fontWeight: 'bold' }}>
-          Refresh Your Day with Lemonade 🍋
+          Refresh your day with our lemonades!
         </h1>
         <p style={{ fontSize: '1.5rem' }}>
-          Natural, delicious, and delivered with love.
+          Natural, delicious, and delivered with care.
         </p>
         <Link href="/products" passHref>
           <Button size="lg" variant="light" className="mt-4 fw-bold">

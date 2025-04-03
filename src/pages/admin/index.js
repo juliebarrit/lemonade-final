@@ -1,4 +1,10 @@
-import { collection, getDocs, doc, updateDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  addDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import EditProductModal from "@/components/EditProductModal";
 import { useRouter } from "next/router";
@@ -51,6 +57,13 @@ export default function AdminPage({ authorized, products }) {
     price: "",
     lemonsUsed: "",
   });
+  const fieldLabels = {
+    name: "Name",
+    description: "Description",
+    image: "Image URL",
+    price: "Price (DKK)",
+    lemonsUsed: "Lemons Used",
+  };
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -126,7 +139,7 @@ export default function AdminPage({ authorized, products }) {
   return (
     <Container className="mt-5 mb-5">
       <h1 className="text-center mb-4">Admin Panel</h1>
-  
+
       {/* Create New Product */}
       <Card className="mb-5 shadow-sm">
         <Card.Body>
@@ -136,10 +149,10 @@ export default function AdminPage({ authorized, products }) {
               {Object.entries(newProduct).map(([key, value]) => (
                 <Col md={6} key={key} className="mb-3">
                   <Form.Group controlId={`form${key}`}>
-                    <Form.Label>{key}</Form.Label>
+                    <Form.Label>{fieldLabels[key] || key}</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder={`Enter ${key}`}
+                      placeholder={`Enter ${fieldLabels[key] || key}`}
                       value={value}
                       onChange={(e) =>
                         setNewProduct({ ...newProduct, [key]: e.target.value })
@@ -155,7 +168,7 @@ export default function AdminPage({ authorized, products }) {
           </Form>
         </Card.Body>
       </Card>
-  
+
       {/* Existing Products */}
       <h4 className="mb-3">Existing Products</h4>
       <Row>
@@ -173,8 +186,12 @@ export default function AdminPage({ authorized, products }) {
                   <Card.Text>{p.description}</Card.Text>
                 </div>
                 <div>
-                  <div><strong>Price:</strong> {p.price} DKK</div>
-                  <div><strong>Lemons used:</strong> {p.lemonsUsed}</div>
+                  <div>
+                    <strong>Price:</strong> {p.price} DKK
+                  </div>
+                  <div>
+                    <strong>Lemons used:</strong> {p.lemonsUsed}
+                  </div>
                 </div>
                 <Button
                   variant="warning"
@@ -189,7 +206,7 @@ export default function AdminPage({ authorized, products }) {
           </Col>
         ))}
       </Row>
-  
+
       {/* Edit Modal */}
       <EditProductModal
         show={showModal}

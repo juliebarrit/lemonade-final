@@ -8,7 +8,6 @@ export default function CustomNavbar() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Dette kører kun på klienten
     setIsClient(true);
   }, []);
 
@@ -16,7 +15,7 @@ export default function CustomNavbar() {
     <Navbar bg="light" expand="lg" className="shadow-sm mb-4">
       <Container>
         <Link href="/" passHref legacyBehavior>
-          <Navbar.Brand>Lemonade Stand 🍋</Navbar.Brand>
+          <Navbar.Brand>Lemoniac</Navbar.Brand>
         </Link>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -26,9 +25,11 @@ export default function CustomNavbar() {
             </Link>
             <Link href="/cart" passHref legacyBehavior>
               <Nav.Link>
-                Cart{' '}
+                🛒 Cart{' '}
                 {isClient && cartItems.length > 0 && (
-                  <Badge bg="success">{cartItems.length}</Badge>
+                  <Badge bg="secondary" className="ms-1">
+                    {cartItems.length}
+                  </Badge>
                 )}
               </Nav.Link>
             </Link>
