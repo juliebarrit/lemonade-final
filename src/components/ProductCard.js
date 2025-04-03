@@ -20,7 +20,6 @@ export default function ProductCard({ product, showToast }) {
         </div>
         <div>
           <div><strong>Price:</strong> {product.price} DKK</div>
-          <div><strong>Lemons:</strong> {product.lemonsUsed}</div>
           <Button variant="primary" className="mt-3 w-100" onClick={handleAdd}>
             Add to Cart
           </Button>

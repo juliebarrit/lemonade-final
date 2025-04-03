@@ -5,32 +5,34 @@ export default function HeroSection() {
   return (
     <div
       style={{
-        backgroundImage: 'url("https://images.unsplash.com/photo-1656936632096-59fcacae533f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")',
+        backgroundImage: 'url("https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=1400&q=80")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '8rem 1rem',
-        color: 'white',
+        color: '#333',
         textAlign: 'center',
         position: 'relative',
       }}
     >
       <div
         style={{
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          padding: '2rem',
-          borderRadius: '10px',
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          padding: '2.5rem',
+          borderRadius: '15px',
           display: 'inline-block',
+          maxWidth: '700px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
         }}
       >
-        <h1 style={{ fontSize: '3rem', fontWeight: 'bold' }}>
-          Refresh your day with our lemonades!
+        <h1 style={{ fontSize: '3rem', fontWeight: '700', color: '#e5b700' }}>
+          Lemoniac – Taste the Sun!
         </h1>
-        <p style={{ fontSize: '1.5rem' }}>
-          Natural, delicious, and delivered with care.
+        <p style={{ fontSize: '1.3rem', color: '#444' }}>
+          Freshly squeezed lemonade made with love, lemons and a splash of joy!
         </p>
         <Link href="/products" passHref>
-          <Button size="lg" variant="light" className="mt-4 fw-bold">
-            Shop Now
+          <Button size="lg" variant="warning" className="mt-4 fw-bold px-4 py-2">
+            Shop Now 🍹
           </Button>
         </Link>
       </div>
