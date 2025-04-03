@@ -20,11 +20,11 @@ import {
 } from "react-bootstrap";
 
 export async function getServerSideProps(context) {
-    const { query, res } = context;
+    const { query } = context;
     const password = query.password;
   
-    // Hvis adgangskoden ikke er angivet, vis login-form
-    if (!password) {
+    // Hvis adgangskoden mangler eller er forkert
+    if (password !== process.env.ADMIN_PASSWORD) {
       return {
         props: {
           authorized: false,
@@ -33,25 +33,22 @@ export async function getServerSideProps(context) {
       };
     }
   
-    // Hvis adgangskoden er korrekt
-    if (password === process.env.ADMIN_PASSWORD) {
-      // Redirect til ren /admin uden password i URL
-      return {
-        redirect: {
-          destination: '/admin',
-          permanent: false,
-        },
-      };
-    }
+    // Adgangskode er korrekt → hent produkter
+    const productsRef = collection(db, "products");
+    const snapshot = await getDocs(productsRef);
+    const products = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
   
-    // Hvis adgangskoden er forkert
     return {
       props: {
-        authorized: false,
-        products: [],
+        authorized: true,
+        products,
       },
     };
   }
+  
 
 export default function AdminPage({ authorized, products }) {
   const router = useRouter();
