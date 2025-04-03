@@ -41,7 +41,7 @@ export default function CartPage() {
       {!isClient ? (
         <p className="text-center">Loading cart...</p>
       ) : cartItems.length === 0 ? (
-        <p className="text-center">Your cart is empty 🍋</p>
+        <p className="text-center">Your cart dgsdgis empty 🍋</p>
       ) : (
         <>
           <Row className="mb-4">
