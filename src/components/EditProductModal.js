@@ -20,7 +20,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Product</Modal.Title>
+        <Modal.Title>Edit product</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {edited && (
