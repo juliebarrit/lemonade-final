@@ -46,7 +46,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
           Cancel
         </Button>
         <Button variant="success" onClick={handleSubmit}>
-          Save Changes
+          Save changes
         </Button>
       </Modal.Footer>
     </Modal>
