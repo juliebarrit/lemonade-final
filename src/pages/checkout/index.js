@@ -20,12 +20,10 @@ export default function CheckoutPage() {
     if (!isClient) return;
 
     if (cartItems.length > 0) {
-      // Save to localStorage and local state
       localStorage.setItem('orderCart', JSON.stringify(cartItems));
       setOrderCart(cartItems);
       dispatch(clearCart());
     } else {
-      // Try to load from localStorage
       const savedOrder = localStorage.getItem('orderCart');
       if (savedOrder) {
         setOrderCart(JSON.parse(savedOrder));
