@@ -23,7 +23,7 @@ export async function getServerSideProps(context) {
     const { query } = context;
     const password = query.password;
   
-    // Hvis adgangskoden mangler eller er forkert
+    // Hvis adgangskoden er forkert eller mangler
     if (password !== process.env.ADMIN_PASSWORD) {
       return {
         props: {
@@ -33,7 +33,7 @@ export async function getServerSideProps(context) {
       };
     }
   
-    // Adgangskode er korrekt → hent produkter
+    // Adgangskode er korrekt – hent produkter
     const productsRef = collection(db, "products");
     const snapshot = await getDocs(productsRef);
     const products = snapshot.docs.map((doc) => ({
