@@ -32,7 +32,7 @@ export default function HeroSection() {
         </p>
         <Link href="/products" passHref>
           <Button size="lg" variant="warning" className="mt-4 fw-bold px-4 py-2">
-            Shop Now 🍹
+            Shop Now
           </Button>
         </Link>
       </div>
