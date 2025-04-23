@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
 
 export default function SalePage() {
-  const [saleItems, setSaleItems] = useState([]);
+  const [saleItems, setSaleItems] = useState([
+    { id: 0, name: '', image: '', originalPrice: 0, salePrice: 0 }
+  ]); // Ensure consistent initial state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -9,17 +9,14 @@ export default function CustomNavbar() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const categories = [
-    { name: 'Earrings', path: '/products?category=earrings' },
-    { name: 'Necklaces', path: '/products?category=necklaces' },
-    { name: 'Bracelets', path: '/products?category=bracelets' },
-    { name: 'Rings', path: '/products?category=rings' },
+    { name: 'Earrings', path: '/products/earrings' },
+    { name: 'Necklaces', path: '/products/necklaces' },
+    { name: 'Bracelets', path: '/products/bracelets' },
+    { name: 'Rings', path: '/products/rings' },
   ];
 
-  const handleMouseEnter = () => setShowDropdown(true);
-  const handleMouseLeave = () => setShowDropdown(false);
-
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // Ensure this runs only on the client
   }, []);
 
   return (
@@ -44,13 +41,15 @@ export default function CustomNavbar() {
                 title="Jewelry"
                 id="jewelry-dropdown"
                 show={showDropdown}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={() => setShowDropdown(true)}
+                onMouseLeave={() => setShowDropdown(false)}
               >
                 {categories.map((category) => (
-                  <Link href={category.path} passHref legacyBehavior key={category.name}>
-                    <NavDropdown.Item>{category.name}</NavDropdown.Item>
-                  </Link>
+                  <NavDropdown.Item key={category.name}>
+                    <Link href={category.path} passHref legacyBehavior>
+                      <a style={{ textDecoration: 'none', color: 'inherit' }}>{category.name}</a>
+                    </Link>
+                  </NavDropdown.Item>
                 ))}
               </NavDropdown>
               <Link href="/sale" passHref legacyBehavior>

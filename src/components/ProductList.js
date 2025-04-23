@@ -1,6 +1,7 @@
+import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import ProductCard from '@/components/ProductCard';
-import ToastMessage from '@/components/ToastMessage';
+import ProductCard from '@/components/ProductCard'; // Ensure this is a default import
+import ToastMessage from '@/components/ToastMessage'; // Ensure this is a default import
 import { useState } from 'react';
 
 export default function ProductList({ products, title }) {
@@ -12,7 +13,10 @@ export default function ProductList({ products, title }) {
 
   return (
     <Container className="mt-5 mb-5">
-      <h1 className="mb-4" style={{ textAlign: 'left' }}>{title}</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 style={{ textAlign: 'left' }}>{title}</h1>
+        <small>{products.length} produkter</small>
+      </div>
       <Row>
         {products.map(product => (
           <Col md={4} sm={6} xs={12} key={product.id} className="mb-4">

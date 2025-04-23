@@ -1,10 +1,12 @@
+import React from 'react';
 import ProductList from '@/components/ProductList';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export async function getServerSideProps() {
   const productsRef = collection(db, 'products');
-  const snapshot = await getDocs(productsRef);
+  const q = query(productsRef, where('category', '==', 'rings'));
+  const snapshot = await getDocs(q);
   const products = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
@@ -18,5 +20,5 @@ export async function getServerSideProps() {
 }
 
 export default function ProductPage({ products }) {
-  return <ProductList products={products} title="Earrings" />;
+  return <ProductList products={products} title="Rings" />;
 }

@@ -1,30 +1,24 @@
-import { Card, Button } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '@/redux/cartSlice';
+import React, { useState } from 'react';
 
 export default function ProductCard({ product, showToast }) {
-  const dispatch = useDispatch();
-
-  const handleAdd = () => {
-    dispatch(addToCart(product));
-    showToast();
-  };
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <Card className="h-100 shadow-sm">
-      <Card.Img variant="top" src={product.image} style={{ objectFit: 'cover', height: '200px' }} />
-      <Card.Body className="d-flex flex-column justify-content-between">
-        <div>
-          <Card.Title>{product.name}</Card.Title>
-          <Card.Text>{product.description}</Card.Text>
-        </div>
-        <div>
-          <div><strong>Price:</strong> {product.price} DKK</div>
-          <Button variant="primary" className="mt-3 w-100" onClick={handleAdd}>
-            Add to Cart
-          </Button>
-        </div>
-      </Card.Body>
-    </Card>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ cursor: 'pointer', textAlign: 'center' }}
+    >
+      <div>
+        <img
+          src={hovered && product.images.length > 1 ? product.images[1] : product.images[0]}
+          alt={product.name}
+          style={{ width: '100%', height: 'auto' }}
+        />
+      </div>
+      <h2>{product.name}</h2>
+      <p>{product.price}</p>
+      <button onClick={showToast}>Add to Cart</button>
+    </div>
   );
 }
