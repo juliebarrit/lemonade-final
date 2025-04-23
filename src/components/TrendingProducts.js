@@ -44,7 +44,7 @@ export default function TrendingProducts({ products }) {
               <Card
                 className="h-100 border-0"
                 style={{
-                  background: 'rgba(207, 235, 199, 0.7)', // pastel green with transparency
+                  background: 'rgba(207, 235, 199, 0.7)', 
                   backdropFilter: 'blur(10px)',
                   borderRadius: '20px',
                   boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
