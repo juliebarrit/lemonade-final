@@ -9,12 +9,12 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
   }, [product]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEdited({ ...edited, [name]: value });
+    const { name, value, files } = e.target;
+    setEdited({ ...edited, [name]: files ? files[0] : value }); // Handle file input
   };
 
   const handleSubmit = () => {
-    onSave(edited);
+    onSave(edited); // Pass edited product to parent component
   };
 
   return (
@@ -30,10 +30,15 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
                 <Form.Group className="mb-3" key={key}>
                   <Form.Label>{key}</Form.Label>
                   <Form.Control
-                    type="text"
+                    type={key === "image" ? "file" : "text"} // Use file input for 'image'
                     name={key}
-                    value={value}
-                    onChange={handleChange}
+                    value={key === "image" ? undefined : value} // Prevent React warning for file input
+                    onChange={(e) =>
+                      setEdited({
+                        ...edited,
+                        [key]: key === "image" ? e.target.files[0] : e.target.value, // Handle file input
+                      })
+                    }
                   />
                 </Form.Group>
               )
