@@ -4,7 +4,7 @@ import heroImg from "/public/images/hero.png";
 
 export default function HeroSection() {
   return (
-    <section className="py-5" style={{ backgroundColor: "var(--secondary-color)", color: "var(--foreground)", borderRadius: "1rem" }}>
+    <section className="py-5" style={{ backgroundColor: "var(--secondary-color)", color: "var(--foreground)", borderRadius: "1rem", fontFamily: "var(--font-sans)" }}>
       <Container>
         <Row className="align-items-center">
           <Col md={6} className="text-center text-md-start mb-4 mb-md-0">
@@ -26,7 +26,11 @@ export default function HeroSection() {
             <p className="mb-4">Happy Shopping! 🌸</p>
             <Button
               className="fw-bold px-4 py-2 rounded-pill"
-              style={{ backgroundColor: "var(--main-color)", color: "white", border: "none" }}
+              style={{
+                backgroundColor: "var(--main-color)", // Use main color for background
+                color: "black", // Change text color to black
+                border: "none",
+              }}
             >
               Alle Produkter
             </Button>
