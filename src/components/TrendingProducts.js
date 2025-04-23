@@ -23,7 +23,7 @@ export default function TrendingProducts({ products }) {
           color: '#3a5a40', // Deep pastel green for title
         }}
       >
-        Trending Products
+        NEW IN
       </h2>
       <Row>
         {products.map((product) => (

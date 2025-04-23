@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../app/globals.css'; // Ensure this is imported
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import CustomNavbar from '@/components/Navbar';
