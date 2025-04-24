@@ -7,26 +7,13 @@ import {
   Form,
   Button,
   Card,
-  Modal,
 } from "react-bootstrap";
-import EditProductModal from "@/components/EditProductModal"; // Ensure this is a default import
+import EditProductModal from "@/components/EditProductModal";
 import axios from "axios";
 
 export async function getServerSideProps(context) {
-  const { query } = context;
-  const password = query.password;
-
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return {
-      props: {
-        authorized: false,
-        products: [],
-      },
-    };
-  }
-
   try {
-    const response = await axios.get("http://127.0.0.1:8000/api/products"); // Updated URL
+    const response = await axios.get("http://127.0.0.1:8000/api/products");
     return {
       props: {
         authorized: true,
@@ -39,12 +26,13 @@ export async function getServerSideProps(context) {
       props: {
         authorized: true,
         products: [],
+        error: error.response?.data?.message || "Failed to fetch products.",
       },
     };
   }
 }
 
-export default function AdminPage({ authorized, products }) {
+export default function AdminPage({ authorized, products, error }) {
   const router = useRouter();
   const [passwordInput, setPasswordInput] = useState("");
   const [newProduct, setNewProduct] = useState({
@@ -52,50 +40,58 @@ export default function AdminPage({ authorized, products }) {
     description: "",
     image: "",
     price: "",
-    type: "", // Added
-    color: "", // Added
+    type: "",
+    color: "",
   });
+  const [showModal, setShowModal] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const fieldLabels = {
     name: "Name",
     description: "Description",
     image: "Image URL",
     price: "Price (DKK)",
-    type: "Type", // Added
-    color: "Color", // Added
+    type: "Type",
+    color: "Color",
   };
 
-  // Modal state
-  const [showModal, setShowModal] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(""); // Add success message state
-  const [errorMessage, setErrorMessage] = useState(""); // Add error message state
-
   const handleEditClick = (product) => {
-    setCurrentProduct({ ...product });
+    setCurrentProduct({ ...product, productID: product.productID || product.id });
     setShowModal(true);
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (formData) => {
     try {
-      const formData = new FormData();
-      Object.entries(currentProduct).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      // Debugging: Log currentProduct to ensure productID is defined
+      console.log("Current Product:", currentProduct);
 
-      await axios.put(`http://127.0.0.1:8000/api/products/${currentProduct.id}`, formData, { // Updated URL
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (!currentProduct || !currentProduct.productID) {
+        throw new Error("Product ID is undefined.");
+      }
+
+      // Add _method=PUT to the formData
+      formData.append('_method', 'PUT');
+
+      await axios.post(
+        `http://127.0.0.1:8000/api/products/${currentProduct.productID}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       setShowModal(false);
-      setSuccessMessage("Product updated successfully!"); // Set success message
-      setErrorMessage(""); // Clear error message
-      setTimeout(() => setSuccessMessage(""), 3000); // Clear success message after 3 seconds
-      router.replace(router.asPath); // Refresh page
+      setSuccessMessage("Product updated successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      router.replace(router.asPath);
     } catch (error) {
       console.error("Error updating product:", error.response?.data || error.message);
       setErrorMessage(
         error.response?.data?.message || "An error occurred while updating the product."
-      ); // Set error message
+      );
     }
   };
 
@@ -106,13 +102,10 @@ export default function AdminPage({ authorized, products }) {
         formData.append(key, value);
       });
 
-      console.log("FormData content:", Array.from(formData.entries())); // Debugging log
-
-      const response = await axios.post("http://127.0.0.1:8000/api/products", formData, { // Updated URL
+      const response = await axios.post("http://127.0.0.1:8000/api/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Product created:", response.data);
       setNewProduct({
         name: "",
         description: "",
@@ -121,68 +114,56 @@ export default function AdminPage({ authorized, products }) {
         type: "",
         color: "",
       });
-      setSuccessMessage("Product saved successfully!"); // Set success message
-      setErrorMessage(""); // Clear error message
-      setTimeout(() => setSuccessMessage(""), 3000); // Clear success message after 3 seconds
-      router.replace(router.asPath); // Refresh page
+      setSuccessMessage("Product saved successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      router.replace(router.asPath);
     } catch (error) {
-      console.error("Error adding product:", error.response?.data || error.message); // Log full error details
+      console.error("Error adding product:", error.response?.data || error.message);
       setErrorMessage(
         error.response?.data?.message || "An error occurred while saving the product."
-      ); // Display error message
+      );
+    }
+  };
+
+  const handleDelete = async (productID) => {
+    console.log("Deleting product with ID:", productID); // Debugging log
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/products/${productID}`);
+      setSuccessMessage("Product deleted successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      router.replace(router.asPath); // Refresh the product list
+    } catch (error) {
+      console.error("Error deleting product:", error.response?.data || error.message);
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred while deleting the product."
+      );
     }
   };
 
   if (!authorized) {
-    return (
-      <Container className="mt-5">
-        <Row className="justify-content-center">
-          <Col md={6}>
-            <h2 className="mb-4">Admin Login</h2>
-            <Form
-              onSubmit={(e) => {
-                e.preventDefault();
-                router.push(`/admin?password=${passwordInput}`);
-              }}
-            >
-              <Form.Group className="mb-3">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                />
-              </Form.Group>
-              <Button variant="primary" type="submit">
-                Log in
-              </Button>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-    );
+    return null; // Remove the login form since authorization is always true
   }
 
   return (
     <Container className="mt-5 mb-5">
       <h1 className="text-center mb-4">Admin Panel</h1>
 
-      {/* Success Message */}
       {successMessage && (
         <div className="alert alert-success text-center" role="alert">
           {successMessage}
         </div>
       )}
 
-      {/* Error Message */}
       {errorMessage && (
         <div className="alert alert-danger text-center" role="alert">
           {errorMessage}
         </div>
       )}
 
-      {/* Create New Product */}
       <Card className="mb-5 shadow-sm">
         <Card.Body>
           <h4 className="mb-4">Create New Product</h4>
@@ -193,13 +174,13 @@ export default function AdminPage({ authorized, products }) {
                   <Form.Group controlId={`form${key}`}>
                     <Form.Label>{fieldLabels[key] || key}</Form.Label>
                     <Form.Control
-                      type={key === "image" ? "file" : "text"} // Use file input for 'image'
+                      type={key === "image" ? "file" : "text"}
                       placeholder={key === "image" ? undefined : `Enter ${fieldLabels[key] || key}`}
-                      value={key === "image" ? undefined : value} // Prevent React warning for file input
+                      value={key === "image" ? undefined : value}
                       onChange={(e) =>
                         setNewProduct({
                           ...newProduct,
-                          [key]: key === "image" ? e.target.files[0] : e.target.value, // Handle file input
+                          [key]: key === "image" ? e.target.files[0] : e.target.value,
                         })
                       }
                     />
@@ -214,11 +195,10 @@ export default function AdminPage({ authorized, products }) {
         </Card.Body>
       </Card>
 
-      {/* Existing Products */}
       <h4 className="mb-3">Existing Products</h4>
       <Row>
         {products.map((p) => (
-          <Col md={4} sm={6} xs={12} key={p.id} className="mb-4">
+          <Col md={4} sm={6} xs={12} key={p.productID || p.id} className="mb-4">
             <Card className="h-100 d-flex flex-column shadow-sm">
               <Card.Img
                 variant="top"
@@ -241,21 +221,30 @@ export default function AdminPage({ authorized, products }) {
                     <strong>Color:</strong> {p.color}
                   </div>
                 </div>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="mt-3 w-100"
-                  onClick={() => handleEditClick(p)}
-                >
-                  Edit
-                </Button>
+                <div className="mt-3 d-flex gap-2">
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    className="w-50"
+                    onClick={() => handleEditClick(p)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="w-50"
+                    onClick={() => handleDelete(p.productID || p.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
 
-      {/* Edit Modal */}
       <EditProductModal
         show={showModal}
         onHide={() => setShowModal(false)}

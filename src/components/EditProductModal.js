@@ -2,19 +2,46 @@ import { Modal, Form, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 
 export default function EditProductModal({ show, onHide, product, onSave }) {
-  const [edited, setEdited] = useState(product || {});
+  const [edited, setEdited] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    setEdited(product || {});
+    if (product) {
+      const { id, created_at, updated_at, ...safeProduct } = product;
+      setEdited({ ...safeProduct });
+      setImagePreview(product.image || null);
+    }
   }, [product]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setEdited({ ...edited, [name]: files ? files[0] : value }); // Handle file input
+    if (files) {
+      setEdited({ ...edited, [name]: files[0] });
+      setImagePreview(URL.createObjectURL(files[0]));
+    } else {
+      setEdited({ ...edited, [name]: value });
+    }
   };
 
   const handleSubmit = () => {
-    onSave(edited); // Pass edited product to parent component
+    if (!edited.name || !edited.description) {
+      alert("Name and description are required.");
+      return;
+    }
+
+    const formData = new FormData();
+    const fieldsToSend = ["name", "description", "price", "color", "type", "image"];
+
+    fieldsToSend.forEach((key) => {
+      const value = edited[key];
+      if (key === "image" && value instanceof File) {
+        formData.append(key, value);
+      } else {
+        formData.append(key, value || "");
+      }
+    });
+
+    onSave(formData);
   };
 
   return (
@@ -26,20 +53,35 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
         {edited && (
           <Form>
             {Object.entries(edited).map(([key, value]) => (
-              key !== "id" && (
+              ["id", "created_at", "updated_at"].includes(key) ? null : (
                 <Form.Group className="mb-3" key={key}>
                   <Form.Label>{key}</Form.Label>
-                  <Form.Control
-                    type={key === "image" ? "file" : "text"} // Use file input for 'image'
-                    name={key}
-                    value={key === "image" ? undefined : value} // Prevent React warning for file input
-                    onChange={(e) =>
-                      setEdited({
-                        ...edited,
-                        [key]: key === "image" ? e.target.files[0] : e.target.value, // Handle file input
-                      })
-                    }
-                  />
+                  {key === "image" ? (
+                    <>
+                      <Form.Control
+                        type="file"
+                        name={key}
+                        onChange={handleChange}
+                      />
+                      {imagePreview && (
+                        <div className="mt-2">
+                          <small>Current Image:</small>
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            style={{ maxWidth: "100%", maxHeight: "150px" }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Form.Control
+                      type="text"
+                      name={key}
+                      value={value || ""}
+                      onChange={handleChange}
+                    />
+                  )}
                 </Form.Group>
               )
             ))}
