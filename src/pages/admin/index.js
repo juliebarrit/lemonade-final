@@ -1,12 +1,3 @@
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  addDoc,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import EditProductModal from "@/components/EditProductModal";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import {
@@ -16,41 +7,32 @@ import {
   Form,
   Button,
   Card,
-  Modal,
 } from "react-bootstrap";
+import EditProductModal from "@/components/EditProductModal";
+import axios from "axios";
 
 export async function getServerSideProps(context) {
-    const { query } = context;
-    const password = query.password;
-  
-    // Hvis adgangskoden er forkert eller mangler
-    if (password !== process.env.ADMIN_PASSWORD) {
-      return {
-        props: {
-          authorized: false,
-          products: [],
-        },
-      };
-    }
-  
-    // Adgangskode er korrekt – hent produkter
-    const productsRef = collection(db, "products");
-    const snapshot = await getDocs(productsRef);
-    const products = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/api/products");
     return {
       props: {
         authorized: true,
-        products,
+        products: response.data,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error.response?.data || error.message);
+    return {
+      props: {
+        authorized: true,
+        products: [],
+        error: error.response?.data?.message || "Failed to fetch products.",
       },
     };
   }
-  
+}
 
-export default function AdminPage({ authorized, products }) {
+export default function AdminPage({ authorized, products, error }) {
   const router = useRouter();
   const [passwordInput, setPasswordInput] = useState("");
   const [newProduct, setNewProduct] = useState({
@@ -58,92 +40,130 @@ export default function AdminPage({ authorized, products }) {
     description: "",
     image: "",
     price: "",
-    lemonsUsed: "",
+    type: "",
+    color: "",
   });
+  const [showModal, setShowModal] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const fieldLabels = {
     name: "Name",
     description: "Description",
     image: "Image URL",
     price: "Price (DKK)",
-    lemonsUsed: "Lemons Used",
+    type: "Type",
+    color: "Color",
   };
 
-  // Modal state
-  const [showModal, setShowModal] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState(null);
-
   const handleEditClick = (product) => {
-    setCurrentProduct({ ...product });
+    setCurrentProduct({ ...product, productID: product.productID || product.id });
     setShowModal(true);
   };
 
-  const handleSaveEdit = async () => {
-    const ref = doc(db, "products", currentProduct.id);
-    await updateDoc(ref, {
-      ...currentProduct,
-      price: Number(currentProduct.price),
-      lemonsUsed: Number(currentProduct.lemonsUsed),
-    });
-    setShowModal(false);
-    router.replace(router.asPath); // Refresh page
+  const handleSaveEdit = async (formData) => {
+    try {
+      // Debugging: Log currentProduct to ensure productID is defined
+      console.log("Current Product:", currentProduct);
+
+      if (!currentProduct || !currentProduct.productID) {
+        throw new Error("Product ID is undefined.");
+      }
+
+      // Add _method=PUT to the formData
+      formData.append('_method', 'PUT');
+
+      await axios.post(
+        `http://127.0.0.1:8000/api/products/${currentProduct.productID}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      setShowModal(false);
+      setSuccessMessage("Product updated successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      router.replace(router.asPath);
+    } catch (error) {
+      console.error("Error updating product:", error.response?.data || error.message);
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred while updating the product."
+      );
+    }
   };
 
   const handleCreate = async () => {
     try {
-      await addDoc(collection(db, "products"), {
-        ...newProduct,
-        price: Number(newProduct.price),
-        lemonsUsed: Number(newProduct.lemonsUsed),
+      const formData = new FormData();
+      Object.entries(newProduct).forEach(([key, value]) => {
+        formData.append(key, value);
       });
+
+      const response = await axios.post("http://127.0.0.1:8000/api/products", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       setNewProduct({
         name: "",
         description: "",
         image: "",
         price: "",
-        lemonsUsed: "",
+        type: "",
+        color: "",
       });
+      setSuccessMessage("Product saved successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
       router.replace(router.asPath);
     } catch (error) {
-      console.error("Error adding product:", error);
+      console.error("Error adding product:", error.response?.data || error.message);
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred while saving the product."
+      );
+    }
+  };
+
+  const handleDelete = async (productID) => {
+    console.log("Deleting product with ID:", productID); // Debugging log
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/products/${productID}`);
+      setSuccessMessage("Product deleted successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      router.replace(router.asPath); // Refresh the product list
+    } catch (error) {
+      console.error("Error deleting product:", error.response?.data || error.message);
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred while deleting the product."
+      );
     }
   };
 
   if (!authorized) {
-    return (
-      <Container className="mt-5">
-        <Row className="justify-content-center">
-          <Col md={6}>
-            <h2 className="mb-4">Admin Login</h2>
-            <Form
-              onSubmit={(e) => {
-                e.preventDefault();
-                router.push(`/admin?password=${passwordInput}`);
-              }}
-            >
-              <Form.Group className="mb-3">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                />
-              </Form.Group>
-              <Button variant="primary" type="submit">
-                Log in
-              </Button>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-    );
+    return null; // Remove the login form since authorization is always true
   }
 
   return (
     <Container className="mt-5 mb-5">
       <h1 className="text-center mb-4">Admin Panel</h1>
 
-      {/* Create New Product */}
+      {successMessage && (
+        <div className="alert alert-success text-center" role="alert">
+          {successMessage}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="alert alert-danger text-center" role="alert">
+          {errorMessage}
+        </div>
+      )}
+
       <Card className="mb-5 shadow-sm">
         <Card.Body>
           <h4 className="mb-4">Create New Product</h4>
@@ -154,11 +174,14 @@ export default function AdminPage({ authorized, products }) {
                   <Form.Group controlId={`form${key}`}>
                     <Form.Label>{fieldLabels[key] || key}</Form.Label>
                     <Form.Control
-                      type="text"
-                      placeholder={`Enter ${fieldLabels[key] || key}`}
-                      value={value}
+                      type={key === "image" ? "file" : "text"}
+                      placeholder={key === "image" ? undefined : `Enter ${fieldLabels[key] || key}`}
+                      value={key === "image" ? undefined : value}
                       onChange={(e) =>
-                        setNewProduct({ ...newProduct, [key]: e.target.value })
+                        setNewProduct({
+                          ...newProduct,
+                          [key]: key === "image" ? e.target.files[0] : e.target.value,
+                        })
                       }
                     />
                   </Form.Group>
@@ -172,11 +195,10 @@ export default function AdminPage({ authorized, products }) {
         </Card.Body>
       </Card>
 
-      {/* Existing Products */}
       <h4 className="mb-3">Existing Products</h4>
       <Row>
         {products.map((p) => (
-          <Col md={4} sm={6} xs={12} key={p.id} className="mb-4">
+          <Col md={4} sm={6} xs={12} key={p.productID || p.id} className="mb-4">
             <Card className="h-100 d-flex flex-column shadow-sm">
               <Card.Img
                 variant="top"
@@ -193,38 +215,41 @@ export default function AdminPage({ authorized, products }) {
                     <strong>Price:</strong> {p.price} DKK
                   </div>
                   <div>
-                    <strong>Lemons used:</strong> {p.lemonsUsed}
+                    <strong>Type:</strong> {p.type}
+                  </div>
+                  <div>
+                    <strong>Color:</strong> {p.color}
                   </div>
                 </div>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="mt-3 w-100"
-                  onClick={() => handleEditClick(p)}
-                >
-                  Edit
-                </Button>
+                <div className="mt-3 d-flex gap-2">
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    className="w-50"
+                    onClick={() => handleEditClick(p)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="w-50"
+                    onClick={() => handleDelete(p.productID || p.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
 
-      {/* Edit Modal */}
       <EditProductModal
         show={showModal}
         onHide={() => setShowModal(false)}
         product={currentProduct}
-        onSave={async (updatedProduct) => {
-          const ref = doc(db, "products", updatedProduct.id);
-          await updateDoc(ref, {
-            ...updatedProduct,
-            price: Number(updatedProduct.price),
-            lemonsUsed: Number(updatedProduct.lemonsUsed),
-          });
-          setShowModal(false);
-          router.replace(router.asPath); // Refresh page
-        }}
+        onSave={handleSaveEdit}
       />
     </Container>
   );
