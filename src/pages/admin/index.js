@@ -71,14 +71,22 @@ export default function AdminPage({ authorized, products, error }) {
         throw new Error("Product ID is undefined.");
       }
 
-      // Add _method=PUT to the formData
-      formData.append('_method', 'PUT');
+      // Add logging to see form data
+      console.log("Sending form data to server:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value instanceof File ? 'File object' : value}`);
+      }
 
+      // We'll use POST with _method=PUT for better FormData compatibility
+      formData.append('_method', 'PUT');
+      
       await axios.post(
         `http://127.0.0.1:8000/api/products/${currentProduct.productID}`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { 
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 

@@ -1,65 +1,69 @@
 # Webshop Project
 
-A Laravel-based webshop application running in Docker.
+A full-stack webshop application built with Next.js and Laravel.
 
-## Getting Started
+## Setup Instructions
 
-These instructions will help you set up the project on your local machine for development.
+### Backend (Laravel)
 
-### Prerequisites
-
-- Docker and Docker Compose installed on your machine
-- Git
-
-### Installation
-
-1. Clone the repository
+1. Navigate to the backend directory:
    ```
-   git clone <your-repository-url>
+   cd webshop-backend
+   ```
+
+2. Run the setup script:
+   ```
+   setup-project.bat  # Windows
+   ```
+   
+   Or manually:
+   ```
+   cp .env.example .env
+   composer install
+   php artisan key:generate
+   php artisan migrate:fresh --seed
+   php artisan storage:link
+   ```
+
+3. Start the Laravel server:
+   ```
+   php artisan serve
+   ```
+
+### Frontend (Next.js)
+
+1. Navigate to the main project directory
+   ```
    cd webshop-project
    ```
 
-2. Start the Docker containers
+2. Install dependencies:
    ```
-   docker-compose up -d
-   ```
-
-3. The application will automatically install Laravel if it's not already installed.
-
-4. Set up your environment file
-   ```
-   cp .env.example .env
-   docker-compose exec app php artisan key:generate
+   npm install
    ```
 
-5. Run database migrations
+3. Start the development server:
    ```
-   docker-compose exec app php artisan migrate
+   npm run dev
    ```
 
-6. Access the application at http://localhost:8000
+## Missing Dependencies Fix
 
-### Common Commands
+If you encounter an error about missing `react-toastify`, run:
+```
+npm install react-toastify
+```
 
-- Run artisan commands:
-  ```
-  docker-compose exec app php artisan <command>
-  ```
+## Database
 
-- Install Composer packages:
-  ```
-  docker-compose exec app composer require <package>
-  ```
+This project uses SQLite for local development to make it easier for team members to have the same products during development.
 
-- Run database migrations:
-  ```
-  docker-compose exec app php artisan migrate
-  ```
+- The database file is located at `webshop-backend/database/database.sqlite`
+- Default products are populated via seeders
 
-- Run tests:
-  ```
-  docker-compose exec app php artisan test
-  ```
+## Contributing
+
+When adding new products to the database, please update the `ProductSeeder.php` file to ensure all team members can have the same products in their local environment.
 
 ## License
 

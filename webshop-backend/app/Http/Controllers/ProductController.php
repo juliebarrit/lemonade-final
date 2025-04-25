@@ -55,26 +55,44 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            \Log::info('Updating product with ID:', ['id' => $id]); // Debugging log
-            \Log::info('Request data:', $request->all()); // Log incoming request data
-            \Log::info('Request all:', $request->all()); // Debugging log to inspect request data
+            \Log::info('Updating product with ID:', ['id' => $id]);
+            \Log::info('Request data:', $request->all());
+
+            // Debug incoming data
+            \Log::info('Request has name: ' . $request->has('name'));
+            \Log::info('Request name value: ' . $request->input('name'));
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'type' => 'nullable|string|max:255', // Allow nullable type
-                'price' => 'required|integer',
-                'color' => 'nullable|string|max:255', // Allow nullable color
+                'type' => 'nullable|string|max:255',
+                'price' => 'required|numeric', // Changed to numeric to accept string numbers
+                'color' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate file upload and allow webp
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             ]);
 
-            $product = Product::where('productID', $id)->firstOrFail(); // Use productID as the primary key
+            $product = Product::where('productID', $id)->firstOrFail();
 
-            if ($request->hasFile('image')) {
-                $validated['image'] = $request->file('image')->store('images', 'public'); // Store file in 'public/images'
+            // Prepare the data for updating
+            $updateData = [];
+
+            // Copy validated text fields
+            foreach (['name', 'type', 'price', 'color', 'description'] as $field) {
+                if ($request->has($field)) {
+                    $updateData[$field] = $request->input($field);
+                }
             }
 
-            $product->update($validated);
+            // Handle image upload if present
+            if ($request->hasFile('image')) {
+                $updateData['image'] = $request->file('image')->store('images', 'public');
+            }
+
+            // Log the update data
+            \Log::info('Update data:', $updateData);
+
+            // Update the product
+            $product->update($updateData);
 
             return response()->json($product, 200);
         } catch (\Exception $e) {
@@ -96,6 +114,31 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error deleting product:', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Failed to delete product. ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get products by type
+     *
+     * @param string $type
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getByType($type)
+    {
+        try {
+            \Log::info('Fetching products by type:', ['type' => $type]);
+
+            $products = Product::where('type', $type)->get()->map(function ($product) {
+                $product->type = $product->type ?? 'Unknown';
+                $product->color = $product->color ?? 'Not specified';
+                $product->image = $product->image ? asset('storage/' . $product->image) : null;
+                return $product;
+            });
+
+            return response()->json($products);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching products by type:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500);
         }
     }
 }
