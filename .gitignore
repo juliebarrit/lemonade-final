@@ -41,4 +41,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# Laravel
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
