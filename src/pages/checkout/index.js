@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { clearCart } from '@/redux/cartSlice';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
+import Navbar from "@/components/Navbar";
 
 export default function CheckoutPage() {
   const cartItems = useSelector((state) => state.cart.items);
@@ -39,57 +40,69 @@ export default function CheckoutPage() {
     0
   );
 
-  const totalLemons = orderCart.reduce(
-    (sum, item) => sum + item.lemonsUsed * item.quantity,
-    0
-  );
-
-  const costPerLemon = 2;
-  const profit = totalPrice - totalLemons * costPerLemon;
-
   return (
-    <Container className="mt-5 mb-5">
-      <h1 className="text-center mb-4">Order Summary</h1>
+    <>
+      <Navbar />
+      <Container className="mt-5 mb-5">
+        <h1 className="text-center mb-4">Ordreoversigt</h1>
 
-      <Row className="mb-4">
-        {orderCart.map((item, index) => (
-          <Col md={4} sm={6} xs={12} key={index} className="mb-4">
-            <Card className="h-100 shadow-sm">
-              <Card.Img
-                variant="top"
-                src={item.image}
-                style={{ objectFit: 'cover', height: '200px' }}
-              />
-              <Card.Body>
-                <Card.Title>{item.name}</Card.Title>
-                <p><strong>Quantity:</strong> {item.quantity}</p>
-                <p><strong>Item total:</strong> {item.price * item.quantity} DKK</p>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+        <Row className="mb-4">
+          {orderCart.map((item, index) => (
+            <Col md={4} sm={6} xs={12} key={index} className="mb-4">
+              <Card className="h-100 shadow-sm">
+                <Card.Img
+                  variant="top"
+                  src={item.image}
+                  style={{ objectFit: 'cover', height: '200px' }}
+                />
+                <Card.Body className="d-flex flex-column justify-content-between">
+                  <div>
+                    <Card.Title>{item.name}</Card.Title>
+                    <Card.Text>{item.description}</Card.Text>
+                  </div>
+                  <div className="mt-3">
+                    <p><strong>Antal:</strong> {item.quantity}</p>
+                    <p><strong>Pris:</strong> {item.price * item.quantity} DKK</p>
+                    {item.type && <p><strong>Type:</strong> {item.type}</p>}
+                    {item.color && <p><strong>Farve:</strong> {item.color}</p>}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-      <Card className="p-4 shadow-sm">
-        <h4>Total:</h4>
-        <p><strong>Total price:</strong> {totalPrice} DKK</p>
-        <p><strong>Total lemons used:</strong> {totalLemons}</p>
-        <p><strong>Profit (to me, the owner 😎):</strong> {profit} DKK</p>
-        <Button
-          variant="primary"
-          onClick={() => {
-            localStorage.removeItem('orderCart'); // Clean up manually
-            router.push('/products');
-          }}
-        >
-          Back to products
-        </Button>
-      </Card>
+        <Card className="p-4 shadow-sm">
+          <h4>Ordre Total</h4>
+          <div className="d-flex justify-content-between mb-3">
+            <span>Subtotal:</span>
+            <span>{totalPrice} DKK</span>
+          </div>
+          <div className="d-flex justify-content-between mb-3">
+            <span>Fragt:</span>
+            <span>Gratis</span>
+          </div>
+          <hr />
+          <div className="d-flex justify-content-between mb-4">
+            <h5>Total:</h5>
+            <h5>{totalPrice} DKK</h5>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => {
+              localStorage.removeItem('orderCart'); // Clean up manually
+              router.push('/products');
+            }}
+          >
+            Tilbage til produkter
+          </Button>
+        </Card>
 
-      <div className="text-center mt-4">
-        <h2>✅ Thank you for your order!</h2>
-        <p>Enjoy your lemonade 🧃</p>
-      </div>
-    </Container>
+        <div className="text-center mt-4">
+          <h2>✅ Tak for din ordre!</h2>
+          <p>Vi glæder os til at sende dine smykker til dig.</p>
+        </div>
+      </Container>
+    </>
   );
 }

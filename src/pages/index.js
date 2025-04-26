@@ -1,22 +1,34 @@
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import axios from 'axios';
 import HeroSection from '@/components/HeroSection';
 import TrendingProducts from '@/components/TrendingProducts';
+import Navbar from '@/components/Navbar';
 
 export async function getServerSideProps() {
-  const productsRef = collection(db, 'products');
-  const snapshot = await getDocs(productsRef);
-  const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  const trendingProducts = products.slice(0, 4);
+  try {
+    // Fetch products from Laravel backend
+    const response = await axios.get("http://127.0.0.1:8000/api/products");
+    
+    // Get the first 4 products as trending products
+    const trendingProducts = response.data.slice(0, 4);
 
-  return {
-    props: { trendingProducts },
-  };
+    return {
+      props: { trendingProducts },
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return {
+      props: { 
+        trendingProducts: [],
+        error: error.message || "Failed to fetch products"
+      },
+    };
+  }
 }
 
 export default function HomePage({ trendingProducts }) {
   return (
     <>
+      <Navbar />
       <HeroSection />
       <TrendingProducts products={trendingProducts} />
     </>

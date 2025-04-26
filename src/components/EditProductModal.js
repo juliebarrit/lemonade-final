@@ -32,7 +32,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
 
   const handleSubmit = () => {
     if (!edited.name || !edited.description) {
-      alert("Name and description are required.");
+      alert("Navn og beskrivelse er påkrævet.");
       return;
     }
 
@@ -62,13 +62,13 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Edit product</Modal.Title>
+        <Modal.Title>Rediger produkt</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {edited && (
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Navn</Form.Label>
               <Form.Control
                 type="text"
                 name="name"
@@ -79,7 +79,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Beskrivelse</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -90,7 +90,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Price</Form.Label>
+              <Form.Label>Pris</Form.Label>
               <Form.Control
                 type="number"
                 name="price"
@@ -111,7 +111,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
+              <Form.Label>Farve</Form.Label>
               <Form.Control
                 type="text"
                 name="color"
@@ -121,7 +121,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Image</Form.Label>
+              <Form.Label>Billede</Form.Label>
               <Form.Control
                 type="file"
                 name="image"
@@ -129,7 +129,7 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
               />
               {imagePreview && (
                 <div className="mt-2">
-                  <small>Current Image:</small>
+                  <small>Nuværende Billede:</small>
                   <img
                     src={imagePreview}
                     alt="Preview"
@@ -143,10 +143,10 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          Cancel
+          Annuller
         </Button>
         <Button variant="success" onClick={handleSubmit}>
-          Save changes
+          Gem ændringer
         </Button>
       </Modal.Footer>
     </Modal>

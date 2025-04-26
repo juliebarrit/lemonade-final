@@ -32,7 +32,7 @@ export default function ProductCard({ product, showToast }) {
         className="add-to-cart-btn"
         onClick={() => showToast && showToast(product)}
       >
-        Add to Cart
+        Læg i kurv
       </button>
 
       <style jsx>{`
