@@ -18,16 +18,23 @@ export const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
+      // Check if the product already exists in the cart
       const existingItem = state.items.find(item => item.id === action.payload.id);
+      
       if (existingItem) {
+        // If it exists, increase the quantity
         existingItem.quantity += 1;
       } else {
+        // If it doesn't exist, add it to the cart
         state.items.push({ ...action.payload, quantity: 1 });
       }
+      
+      // Save to localStorage
       localStorage.setItem('cart', JSON.stringify(state.items));
     },
     removeFromCart: (state, action) => {
-      state.items.splice(action.payload, 1);
+      // Remove item by id
+      state.items = state.items.filter(item => item.id !== action.payload);
       localStorage.setItem('cart', JSON.stringify(state.items));
     },
     increaseQuantity: (state, action) => {

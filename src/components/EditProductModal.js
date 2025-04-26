@@ -7,8 +7,15 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
 
   useEffect(() => {
     if (product) {
-      const { id, created_at, updated_at, ...safeProduct } = product;
-      setEdited({ ...safeProduct });
+      // Create a clean copy of the product, ensuring all needed fields
+      setEdited({
+        name: product.name || '',
+        description: product.description || '',
+        price: product.price || '',
+        color: product.color || '',
+        type: product.type || '',
+        image: null  // Don't include the image URL, just track new file uploads
+      });
       setImagePreview(product.image || null);
     }
   }, [product]);
@@ -25,21 +32,29 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
 
   const handleSubmit = () => {
     if (!edited.name || !edited.description) {
-      alert("Name and description are required.");
+      alert("Navn og beskrivelse er påkrævet.");
       return;
     }
 
     const formData = new FormData();
-    const fieldsToSend = ["name", "description", "price", "color", "type", "image"];
+    
+    // Add all fields explicitly to ensure they're included
+    formData.append('name', edited.name);
+    formData.append('description', edited.description);
+    formData.append('price', edited.price);
+    formData.append('color', edited.color || '');
+    formData.append('type', edited.type || '');
+    
+    // Only append image if it's a File object
+    if (edited.image instanceof File) {
+      formData.append('image', edited.image);
+    }
 
-    fieldsToSend.forEach((key) => {
-      const value = edited[key];
-      if (key === "image" && value instanceof File) {
-        formData.append(key, value);
-      } else {
-        formData.append(key, value || "");
-      }
-    });
+    // Add debugging
+    console.log("Form data being sent:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value instanceof File ? 'File object' : value}`);
+    }
 
     onSave(formData);
   };
@@ -47,53 +62,91 @@ export default function EditProductModal({ show, onHide, product, onSave }) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Edit product</Modal.Title>
+        <Modal.Title>Rediger produkt</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {edited && (
           <Form>
-            {Object.entries(edited).map(([key, value]) => (
-              ["id", "created_at", "updated_at"].includes(key) ? null : (
-                <Form.Group className="mb-3" key={key}>
-                  <Form.Label>{key}</Form.Label>
-                  {key === "image" ? (
-                    <>
-                      <Form.Control
-                        type="file"
-                        name={key}
-                        onChange={handleChange}
-                      />
-                      {imagePreview && (
-                        <div className="mt-2">
-                          <small>Current Image:</small>
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            style={{ maxWidth: "100%", maxHeight: "150px" }}
-                          />
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Form.Control
-                      type="text"
-                      name={key}
-                      value={value || ""}
-                      onChange={handleChange}
-                    />
-                  )}
-                </Form.Group>
-              )
-            ))}
+            <Form.Group className="mb-3">
+              <Form.Label>Navn</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={edited.name || ""}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Beskrivelse</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="description"
+                value={edited.description || ""}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Pris</Form.Label>
+              <Form.Control
+                type="number"
+                name="price"
+                value={edited.price || ""}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Type</Form.Label>
+              <Form.Control
+                type="text"
+                name="type"
+                value={edited.type || ""}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Farve</Form.Label>
+              <Form.Control
+                type="text"
+                name="color"
+                value={edited.color || ""}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Billede</Form.Label>
+              <Form.Control
+                type="file"
+                name="image"
+                onChange={handleChange}
+              />
+              {imagePreview && (
+                <div className="mt-2">
+                  <small>Nuværende Billede:</small>
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{ maxWidth: "100%", maxHeight: "150px" }}
+                  />
+                </div>
+              )}
+            </Form.Group>
           </Form>
         )}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>
-          Cancel
+          Annuller
         </Button>
         <Button variant="success" onClick={handleSubmit}>
-          Save changes
+          Gem ændringer
         </Button>
       </Modal.Footer>
     </Modal>

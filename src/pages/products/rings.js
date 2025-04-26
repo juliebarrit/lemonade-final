@@ -1,24 +1,39 @@
 import React from 'react';
 import ProductList from '@/components/ProductList';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import axios from 'axios';
+import Navbar from '@/components/Navbar';
 
 export async function getServerSideProps() {
-  const productsRef = collection(db, 'products');
-  const q = query(productsRef, where('category', '==', 'rings'));
-  const snapshot = await getDocs(q);
-  const products = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  try {
+    // Fetch all products from Laravel backend
+    const response = await axios.get("http://127.0.0.1:8000/api/products");
+    
+    // Filter products where type is 'fingerring'
+    const products = response.data.filter(product => 
+      product.type && product.type.toLowerCase() === 'fingerring'
+    );
 
-  return {
-    props: {
-      products,
-    },
-  };
+    return {
+      props: {
+        products,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching ring products:", error);
+    return {
+      props: {
+        products: [],
+        error: error.message || "Failed to fetch products"
+      },
+    };
+  }
 }
 
 export default function ProductPage({ products }) {
-  return <ProductList products={products} title="Rings" />;
+  return (
+    <>
+      <Navbar />
+      <ProductList products={products} title="Ringe" />
+    </>
+  );
 }

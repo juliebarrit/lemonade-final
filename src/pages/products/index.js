@@ -1,25 +1,37 @@
+import React from 'react';
 import ProductList from '@/components/ProductList';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import axios from 'axios';
+import Navbar from '@/components/Navbar';
 
-export async function getServerSideProps(context) {
-  const { category } = context.query;
-  const productsRef = collection(db, 'products');
-  const q = category ? query(productsRef, where('category', '==', category)) : productsRef;
-  const snapshot = await getDocs(q);
-  const products = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+export async function getServerSideProps() {
+  try {
+    // Fetch all products from Laravel backend
+    const response = await axios.get("http://127.0.0.1:8000/api/products");
+    
+    // Use all products without filtering
+    const products = response.data;
 
-  return {
-    props: {
-      products,
-      category: category || 'All Jewelry',
-    },
-  };
+    return {
+      props: {
+        products,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return {
+      props: {
+        products: [],
+        error: error.message || "Failed to fetch products"
+      },
+    };
+  }
 }
 
-export default function ProductPage({ products, category }) {
-  return <ProductList products={products} title={category} />;
+export default function ProductPage({ products }) {
+  return (
+    <>
+      <Navbar />
+      <ProductList products={products} title="Alle Smykker" />
+    </>
+  );
 }

@@ -1,0 +1,34 @@
+/* Product page styling */
+.product-page h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+/* Additional filter styling */
+.filter-section, .sort-section {
+  display: flex;
+  align-items: center;
+}
+
+.filter-button:focus, .sort-select:focus {
+  outline: none;
+}
+
+/* Product grid styling */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+/* Enhance responsiveness */
+@media (max-width: 768px) {
+  .filter-section, .sort-section {
+    font-size: 14px;
+  }
+  
+  .product-page h1 {
+    font-size: 2rem;
+  }
+}

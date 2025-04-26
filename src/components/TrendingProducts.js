@@ -16,7 +16,7 @@ export default function TrendingProducts({ products }) {
   return (
     <div
       style={{
-        backgroundColor: "var(--main-color)", // Use main color for full-width background
+        backgroundColor: "#ff77a3", // Updated pink color
         padding: "2rem 0",
       }}
     >
@@ -25,94 +25,68 @@ export default function TrendingProducts({ products }) {
         style={{
           borderRadius: "1rem",
           padding: "2rem",
-          backgroundColor: "transparent", // Ensure inner container is transparent
+          backgroundColor: "transparent",
         }}
       >
         <h2
-          className="text-center mb-5"
+          className="text-center mb-4"
           style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#3a5a40', // Deep pastel green for title
+            fontSize: '2rem',
+            fontWeight: '700',
+            color: '#333',
           }}
         >
-          NEW IN
+          ✨ Nyeste Kollektion ✨
         </h2>
         <Row>
           {products.map((product) => (
-            <Col md={3} sm={6} xs={12} key={product.id} className="mb-4">
+            <Col md={6} lg={6} xl={6} key={product.id} className="mb-4">
               <Card
                 className="h-100 border-0"
                 style={{
-                  background: 'rgba(207, 235, 199, 0.7)', 
-                  backdropFilter: 'blur(10px)',
-                  borderRadius: '20px',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-5px)';
-                  e.currentTarget.style.boxShadow = '0 12px 28px rgba(74, 112, 89, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)';
+                  background: 'white',
+                  borderRadius: '0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  overflow: 'hidden',
                 }}
               >
-                <Card.Img
-                  variant="top"
-                  src={product.image}
-                  style={{
-                    objectFit: 'cover',
-                    height: '220px',
-                    borderTopLeftRadius: '20px',
-                    borderTopRightRadius: '20px',
-                  }}
-                />
-                <Card.Body className="d-flex flex-column justify-content-between">
-                  <div>
-                    <Card.Title style={{ fontWeight: '700', color: '#1b1b1b' }}>
-                      {product.name}
-                    </Card.Title>
-                    <Card.Text
-                      style={{
-                        fontSize: '0.95rem',
-                        color: '#2b2b2b',
-                        marginBottom: '1rem',
-                      }}
-                    >
-                      {product.description}
-                    </Card.Text>
+                <div className="text-center p-4">
+                  <Card.Img
+                    variant="top"
+                    src={product.image}
+                    style={{
+                      objectFit: 'contain',
+                      height: '300px',
+                      width: 'auto',
+                      maxWidth: '100%',
+                    }}
+                  />
+                </div>
+                <Card.Body className="text-center pt-0">
+                  <Card.Title style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
+                    {product.name}
+                  </Card.Title>
+                  <div style={{ 
+                    color: '#333', 
+                    fontWeight: 'bold',
+                    marginBottom: '1rem'
+                  }}>
+                    {product.price} DKK
                   </div>
-                  <div>
-                    <div style={{ color: '#333', fontWeight: 'bold' }}>
-                      {product.price} DKK
-                    </div>
-                    <Button
-                      className="mt-3 w-100"
-                      style={{
-                        background: 'linear-gradient(135deg, #a9d6ae, #d0eecd)', // minty pastel gradient
-                        border: 'none',
-                        fontWeight: '600',
-                        color: '#1c1c1c',
-                        borderRadius: '30px',
-                        padding: '0.6rem 1.2rem',
-                        boxShadow: '0 4px 12px rgba(168, 200, 180, 0.4)',
-                        transition: 'all 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.04)';
-                        e.target.style.boxShadow = '0 6px 16px rgba(100, 150, 120, 0.4)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
-                        e.target.style.boxShadow = '0 4px 12px rgba(168, 200, 180, 0.4)';
-                      }}
-                      onClick={() => handleAdd(product)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </div>
+                  <Button
+                    className="mt-2"
+                    style={{
+                      backgroundColor: '#ff77a3', // Updated pink color
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontWeight: '600',
+                      color: '#fff',
+                      padding: '0.5rem 1.5rem',
+                    }}
+                    onClick={() => handleAdd(product)}
+                  >
+                    Tilføj til kurv
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
