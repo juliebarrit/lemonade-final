@@ -1,40 +1,70 @@
 # Webshop Project
 
-A full-stack webshop application built with Next.js and Laravel.
+This repository contains a web shop application that works across both Windows and Mac operating systems.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 14 or newer recommended)
+- [PHP](https://www.php.net/) (version 8.0 or newer)
+- [Composer](https://getcomposer.org/)
+- npm (comes with Node.js)
+- Git
 
 ## Setup Instructions
 
-### Backend (Laravel)
+### For all platforms (Windows, macOS, Linux)
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/webshop-project.git
+   ```
+
+2. Navigate to the project directory:
+   ```
+   cd webshop-project
+   ```
+
+3. Configure Git for cross-platform compatibility:
+   ```
+   git config core.autocrlf input
+   ```
+
+### Backend Setup
 
 1. Navigate to the backend directory:
    ```
    cd webshop-backend
    ```
 
-2. Run the setup script:
+2. Install PHP dependencies:
    ```
-   setup-project.bat  # Windows
-   ```
-   
-   Or manually:
-   ```
-   cp .env.example .env
    composer install
-   php artisan key:generate
-   php artisan migrate:fresh --seed
-   php artisan storage:link
    ```
 
-3. Start the Laravel server:
+3. Set up environment file:
+   - Copy the example environment file: 
+     - On Mac/Linux: `cp .env.example .env`
+     - On Windows: `copy .env.example .env`
+   - Generate application key:
+     ```
+     php artisan key:generate
+     ```
+
+4. Set up the database:
+   ```
+   php artisan migrate
+   ```
+
+5. Start the Laravel server:
    ```
    php artisan serve
    ```
 
-### Frontend (Next.js)
+### Frontend Setup
 
-1. Navigate to the main project directory
+1. Navigate to the frontend directory:
    ```
-   cd webshop-project
+   cd ../webshop-frontend
    ```
 
 2. Install dependencies:
@@ -44,27 +74,53 @@ A full-stack webshop application built with Next.js and Laravel.
 
 3. Start the development server:
    ```
-   npm run dev
+   npm start
    ```
 
-## Missing Dependencies Fix
+## Environment Files
 
-If you encounter an error about missing `react-toastify`, run:
+**Important**: Environment files (`.env`) contain sensitive information and are not committed to the repository for security reasons.
+
+- The `.env.example` file serves as a template.
+- Copy `.env.example` to `.env` and update the values as needed.
+- Never commit your actual `.env` files to the repository!
+
+## Line Ending Issues
+
+This project uses Git's line ending normalization to ensure code works across platforms:
+
+1. If you encounter line ending warnings:
+   ```
+   git config --global core.autocrlf input   # For Mac/Linux
+   git config --global core.autocrlf true    # For Windows
+   ```
+
+2. For existing files with wrong line endings:
+   ```
+   git add --renormalize .
+   ```
+
+3. The `.gitattributes` file ensures consistent line endings for specific file types.
+
+## Permission Issues
+
+If you encounter permission issues with `.next/trace` or similar directories:
+
+### On Mac/Linux:
 ```
-npm install react-toastify
+chmod -R 755 .next
 ```
 
-## Database
+### On Windows:
+Right-click the folder, go to Properties > Security tab, and ensure your user has Full Control.
 
-This project uses SQLite for local development to make it easier for team members to have the same products during development.
+## Troubleshooting
 
-- The database file is located at `webshop-backend/database/database.sqlite`
-- Default products are populated via seeders
-
-## Contributing
-
-When adding new products to the database, please update the `ProductSeeder.php` file to ensure all team members can have the same products in their local environment.
+- **Path issues**: Ensure all file paths in code use forward slashes (/) rather than backslashes (\)
+- **Line ending issues**: Follow the instructions in the "Line Ending Issues" section
+- **Database issues**: If using SQLite, make sure the database file has write permissions
+- **Cache issues**: Try clearing Next.js cache with `rm -rf .next` or `rd /s /q .next` on Windows
 
 ## License
 
-This project is licensed under the MIT License.
+[MIT](LICENSE)
