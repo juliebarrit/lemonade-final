@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,8 +12,7 @@ class CreateOrderProductsTable extends Migration
             $table->id();
             $table->foreignId('orderID')->constrained('orders')->onDelete('cascade');
             $table->foreignId('productID')->constrained('products')->onDelete('cascade');
-            $table->integer('quantity');
-            $table->integer('total_price');
+            $table->integer('quantity')->default(1);
             $table->timestamps();
         });
     }

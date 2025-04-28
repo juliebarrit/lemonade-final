@@ -17,7 +17,7 @@ return new class extends Migration
 
             // Re-add the foreign key with the correct reference
             $table->foreign('orderID')
-                ->references('orderID') // Ensure this references the correct primary key in the orders table
+                ->references('ID') // Ensure this references the correct primary key in the orders table
                 ->on('orders')
                 ->onDelete('cascade'); // Cascade delete related rows when an order is deleted
         });
