@@ -18,36 +18,36 @@ export const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      // Check if the product already exists in the cart
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const productToAdd = action.payload;
+      // Use productID instead of id for finding existing items
+      const existingItem = state.items.find(item => item.productID === productToAdd.productID);
       
       if (existingItem) {
-        // If it exists, increase the quantity
         existingItem.quantity += 1;
       } else {
-        // If it doesn't exist, add it to the cart
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({ ...productToAdd, quantity: 1 });
       }
       
-      // Save to localStorage
       localStorage.setItem('cart', JSON.stringify(state.items));
     },
     removeFromCart: (state, action) => {
-      // Remove item by id
-      state.items = state.items.filter(item => item.id !== action.payload);
+      // Use productID instead of id
+      state.items = state.items.filter(item => item.productID !== action.payload);
       localStorage.setItem('cart', JSON.stringify(state.items));
     },
     increaseQuantity: (state, action) => {
-      const item = state.items.find(i => i.id === action.payload);
+      // Use productID instead of id
+      const item = state.items.find(i => i.productID === action.payload);
       if (item) item.quantity += 1;
       localStorage.setItem('cart', JSON.stringify(state.items));
     },
     decreaseQuantity: (state, action) => {
-      const item = state.items.find(i => i.id === action.payload);
+      // Use productID instead of id
+      const item = state.items.find(i => i.productID === action.payload);
       if (item) {
         item.quantity -= 1;
         if (item.quantity <= 0) {
-          state.items = state.items.filter(i => i.id !== action.payload);
+          state.items = state.items.filter(i => i.productID !== action.payload);
         }
       }
       localStorage.setItem('cart', JSON.stringify(state.items));

@@ -12,6 +12,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
+            Log::info('Attempting to create product:', $request->all());
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'type' => 'nullable|string|max:255', // Allow nullable type
@@ -27,17 +28,17 @@ class ProductController extends Controller
 
             $product = Product::create($validated);
 
-            return response()->json($product, 201);
+            return response()->json($product, 201); // Created
         } catch (\Exception $e) {
-            \Log::error('Error saving product:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to save product. ' . $e->getMessage()], 500);
+            Log::error('Error saving product:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to save product. ' . $e->getMessage()], 500); // Server Error
         }
     }
 
     public function index()
     {
         try {
-            \Log::info('Fetching all products'); // Debugging log
+            Log::info('Fetching all products'); // Debugging log
             $products = Product::all()->map(function ($product) {
                 $product->type = $product->type ?? 'Unknown'; // Default value for type
                 $product->color = $product->color ?? 'Not specified'; // Default value for color
@@ -45,17 +46,17 @@ class ProductController extends Controller
                 return $product;
             });
 
-            return response()->json($products);
+            return response()->json($products, 200); // OK
         } catch (\Exception $e) {
-            \Log::error('Error fetching products:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500);
+            Log::error('Error fetching products:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500); // Server Error
         }
     }
 
     public function update(Request $request, $id)
     {
         try {
-            \Log::info('Updating product with ID:', ['id' => $id]);
+            Log::info('Updating product:', ['id' => $id, 'data' => $request->all()]);
             \Log::info('Request data:', $request->all());
 
             // Debug incoming data
@@ -72,8 +73,7 @@ class ProductController extends Controller
             ]);
 
             $product = Product::where('productID', $id)->firstOrFail();
-
-            // Prepare the data for updating
+ // Prepare the data for updating
             $updateData = [];
 
             // Copy validated text fields
@@ -89,31 +89,43 @@ class ProductController extends Controller
             }
 
             // Log the update data
-            \Log::info('Update data:', $updateData);
+            Log::info('Update data:', $updateData);
 
             // Update the product
             $product->update($updateData);
 
-            return response()->json($product, 200);
+            return response()->json($product, 200); // OK
         } catch (\Exception $e) {
-            \Log::error('Error updating product:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to update product. ' . $e->getMessage()], 500);
+            Log::error('Error updating product:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to update product. ' . $e->getMessage()], 500); // Server Error
         }
     }
 
     public function destroy($id)
     {
         try {
-            \Log::info('Deleting product with ID:', ['id' => $id]); // Debugging log
+            Log::info('Attempting to soft delete product:', ['id' => $id]);
 
-            // Find and delete the product
             $product = Product::where('productID', $id)->firstOrFail();
-            $product->delete();
+            $product->delete(); // Dette vil nu være en blød sletning
 
-            return response()->json(['message' => 'Product deleted successfully.'], 200);
+            return response()->json(['message' => 'Produkt er blevet arkiveret.'], 200); // OK
         } catch (\Exception $e) {
-            \Log::error('Error deleting product:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to delete product. ' . $e->getMessage()], 500);
+            Log::error('Error deleting product:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Kunne ikke arkivere produktet. ' . $e->getMessage()
+            ], 500); // Server Error
+        }
+    }
+
+    // Tilføj ny metode til at få alle produkter inklusiv slettede
+    public function indexWithTrashed()
+    {
+        try {
+            $products = Product::withTrashed()->get();
+            return response()->json($products, 200); // OK
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Kunne ikke hente produkter'], 500); // Server Error
         }
     }
 
@@ -126,7 +138,7 @@ class ProductController extends Controller
     public function getByType($type)
     {
         try {
-            \Log::info('Fetching products by type:', ['type' => $type]);
+            Log::info('Fetching products by type:', ['type' => $type]);
 
             $products = Product::where('type', $type)->get()->map(function ($product) {
                 $product->type = $product->type ?? 'Unknown';
@@ -135,10 +147,36 @@ class ProductController extends Controller
                 return $product;
             });
 
-            return response()->json($products);
+            return response()->json($products, 200); // OK
         } catch (\Exception $e) {
-            \Log::error('Error fetching products by type:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500);
+            Log::error('Error fetching products by type:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500); // Server Error
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            Log::info('Fetching single product:', ['id' => $id]);
+
+            $product = Product::where('productID', $id)->first();
+
+            if (!$product) {
+                Log::error('Product not found:', ['id' => $id]);
+                return response()->json(['message' => 'Product not found'], 404); // Not Found
+            }
+
+            // Format the product data
+            $product->image = $product->image ? asset('storage/' . $product->image) : null;
+            $product->type = $product->type ?? 'Unknown';
+            $product->color = $product->color ?? 'Not specified';
+
+            Log::info('Product found:', $product->toArray());
+            return response()->json($product, 200); // OK
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching product:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to fetch product'], 500); // Server Error
         }
     }
 }

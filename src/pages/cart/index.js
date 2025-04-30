@@ -24,6 +24,97 @@ export default function CartPage() {
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
+  const [customerForm, setCustomerForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+
+  const handleCustomerSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/customers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(customerForm)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create customer');
+      }
+      
+      const customer = await response.json();
+      
+      // Save cart items with correct product IDs
+      const cartWithProductIds = cartItems.map(item => ({
+        ...item,
+        productID: item.productID || item.id  // Ensure we use productID
+      }));
+      
+      localStorage.setItem('orderCart', JSON.stringify(cartWithProductIds));
+      localStorage.setItem('customerID', customer.customerID);
+      localStorage.removeItem('orderCreated');
+      
+      await router.push('/checkout', undefined, { shallow: true });
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Der opstod en fejl ved oprettelse af kunde: ' + error.message);
+    }
+  };
+
+  const renderCustomerForm = () => (
+    <Card className="p-4 shadow-sm mb-4">
+      <h4>Kunde Information</h4>
+      <form id="customerForm" onSubmit={handleCustomerSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Navn</label>
+          <input
+            type="text"
+            className="form-control"
+            value={customerForm.name}
+            onChange={(e) => setCustomerForm({...customerForm, name: e.target.value})}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={customerForm.email}
+            onChange={(e) => setCustomerForm({...customerForm, email: e.target.value})}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Telefon</label>
+          <input
+            type="tel"
+            className="form-control"
+            value={customerForm.phone}
+            onChange={(e) => setCustomerForm({...customerForm, phone: e.target.value})}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Adresse</label>
+          <input
+            type="text"
+            className="form-control"
+            value={customerForm.address}
+            onChange={(e) => setCustomerForm({...customerForm, address: e.target.value})}
+            required
+          />
+        </div>
+      </form>
+    </Card>
+  );
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -52,7 +143,7 @@ export default function CartPage() {
           <>
             <Row className="mb-4">
               {cartItems.map((item) => (
-                <Col md={4} sm={6} xs={12} key={item.id} className="mb-4">
+                <Col md={4} sm={6} xs={12} key={item.productID} className="mb-4">
                   <Card className="h-100 shadow-sm">
                     <Card.Img
                       variant="top"
@@ -79,7 +170,7 @@ export default function CartPage() {
                           <ButtonGroup size="sm">
                             <Button
                               variant="outline-secondary"
-                              onClick={() => dispatch(decreaseQuantity(item.id))}
+                              onClick={() => dispatch(decreaseQuantity(item.productID))}
                             >
                               −
                             </Button>
@@ -88,7 +179,7 @@ export default function CartPage() {
                             </Button>
                             <Button
                               variant="outline-secondary"
-                              onClick={() => dispatch(increaseQuantity(item.id))}
+                              onClick={() => dispatch(increaseQuantity(item.productID))}
                             >
                               +
                             </Button>
@@ -97,7 +188,7 @@ export default function CartPage() {
                           <Button 
                             variant="outline-danger" 
                             size="sm"
-                            onClick={() => dispatch(removeFromCart(item.id))}
+                            onClick={() => dispatch(removeFromCart(item.productID))}
                           >
                             Fjern
                           </Button>
@@ -108,6 +199,8 @@ export default function CartPage() {
                 </Col>
               ))}
             </Row>
+
+            {renderCustomerForm()}
 
             <Card className="p-4 shadow-sm">
               <h4>Ordreoversigt</h4>
@@ -127,9 +220,11 @@ export default function CartPage() {
               
               <div className="d-flex flex-wrap gap-2">
                 <Button
+                  type="submit"
+                  form="customerForm"  // Connect to form by ID
                   variant="success"
                   className="flex-grow-1"
-                  onClick={() => router.push("/checkout")}
+                  onClick={handleCustomerSubmit}
                 >
                   Til kassen
                 </Button>

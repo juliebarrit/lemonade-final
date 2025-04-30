@@ -1,36 +1,40 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Card } from 'react-bootstrap';
+import Link from 'next/link';
 
 export default function ProductCard({ product, showToast }) {
-  const [hovered, setHovered] = useState(false);
-
-  // Ensure product has valid image 
-  const productImage = product.image || '/images/placeholder.jpg';
+  if (!product?.productID) return null;
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="product-card" 
-    >
-      <div className="product-image-container">
-        <div className="image-wrapper">
-          <img
-            src={productImage}
-            alt={product.name}
-            className={hovered ? 'hover-effect' : ''}
-          />
-          {product.soldOut && (
-            <div className="sold-out-badge">Udsolgt</div>
-          )}
+    <Card className="h-100 product-card">
+      <Link 
+        href={`/product/${product.productID}`}
+        passHref
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
+        <div className="product-image-container">
+          <div className="image-wrapper">
+            <img
+              src={product.image || '/images/placeholder.jpg'}
+              alt={product.name}
+              className="product-image"
+            />
+            {product.soldOut && (
+              <div className="sold-out-badge">Udsolgt</div>
+            )}
+          </div>
         </div>
-      </div>
-      
-      <h3 className="product-title">{product.name}</h3>
-      <p className="product-price">{product.price} DKK</p>
+        
+        <h3 className="product-title">{product.name}</h3>
+        <p className="product-price">{product.price} DKK</p>
+      </Link>
       
       <button 
         className="add-to-cart-btn"
-        onClick={() => showToast && showToast(product)}
+        onClick={(e) => {
+          e.preventDefault();
+          showToast(product); // Send hele produktet med
+        }}
       >
         Læg i kurv
       </button>
@@ -104,6 +108,6 @@ export default function ProductCard({ product, showToast }) {
           color: white;
         }
       `}</style>
-    </div>
+    </Card>
   );
 }

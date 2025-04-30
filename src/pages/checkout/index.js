@@ -20,20 +20,69 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    if (cartItems.length > 0) {
-      localStorage.setItem('orderCart', JSON.stringify(cartItems));
-      setOrderCart(cartItems);
-      dispatch(clearCart());
-    } else {
-      const savedOrder = localStorage.getItem('orderCart');
-      if (savedOrder) {
-        setOrderCart(JSON.parse(savedOrder));
-      }
+    // Get order data from localStorage
+    const savedOrder = localStorage.getItem('orderCart');
+    if (savedOrder) {
+      setOrderCart(JSON.parse(savedOrder));
     }
-}, [isClient, cartItems, dispatch]);
 
+    const createOrder = async () => {
+      const customerID = localStorage.getItem('customerID');
+      const savedCartItems = localStorage.getItem('orderCart');
+      const orderCreated = localStorage.getItem('orderCreated');
 
-  if (!isClient || orderCart.length === 0) return null;
+      if (!customerID || !savedCartItems || orderCreated) {
+        return;
+      }
+
+      try {
+        const cartItems = JSON.parse(savedCartItems);
+        const orderData = {
+          customerID: parseInt(customerID),
+          products: cartItems.map(item => ({
+            productID: parseInt(item.productID || item.id),
+            quantity: parseInt(item.quantity),
+            price: parseFloat(item.price),
+            total_price: parseFloat(item.price * item.quantity)
+          }))
+        };
+
+        const response = await fetch(`http://127.0.0.1:8000/api/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create order');
+        }
+
+        const order = await response.json();
+        localStorage.setItem('orderCreated', 'true');
+        dispatch(clearCart());
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Der opstod en fejl ved oprettelse af ordre: ' + error.message);
+      }
+    };
+
+    createOrder();
+  }, [isClient]); // Remove cartItems and dispatch from dependencies
+
+  // Cleanup function when leaving checkout page
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem('orderCreated');
+    };
+  }, []);
+
+  // Remove this condition so the page always renders
+  if (!isClient) return null;
+  // if (!isClient || orderCart.length === 0) return null;
 
   const totalPrice = orderCart.reduce(
     (sum, item) => sum + item.price * item.quantity,
