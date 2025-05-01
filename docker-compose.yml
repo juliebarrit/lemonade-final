@@ -1,49 +1,71 @@
 version: '3'
+
 services:
+  # PHP Laravel Application
   app:
     build:
-      context: .
+      context: ./webshop-backend
       dockerfile: Dockerfile
-    container_name: laravel-app
+    container_name: webshop-app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - .:/var/www
+      - ./webshop-backend:/var/www
     networks:
-      - laravel-network
+      - webshop-network
+    depends_on:
+      - mysql
 
+  # Nginx Service for Laravel
   nginx:
     image: nginx:alpine
-    container_name: laravel-nginx
+    container_name: webshop-nginx
     restart: unless-stopped
     ports:
       - "8000:80"
     volumes:
-      - .:/var/www
+      - ./webshop-backend:/var/www
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - webshop-network
     depends_on:
       - app
-    networks:
-      - laravel-network
 
-  db:
+  # MySQL Database
+  mysql:
     image: mysql:5.7
-    container_name: laravel-db
+    container_name: webshop-mysql
     restart: unless-stopped
     ports:
-      - "3307:3306"  # Using 3307 on host to avoid conflict
+      - "3306:3306"
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: password
-      MYSQL_USER: laravel
+      MYSQL_DATABASE: lse_webshop
+      MYSQL_USER: webshop_user
+      MYSQL_PASSWORD: webshop_password
+      MYSQL_ROOT_PASSWORD: root_password
+      SERVICE_NAME: mysql
     volumes:
       - dbdata:/var/lib/mysql
     networks:
-      - laravel-network
+      - webshop-network
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: webshop-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root_password
+    networks:
+      - webshop-network
+    depends_on:
+      - mysql
 
 networks:
-  laravel-network:
+  webshop-network:
     driver: bridge
 
 volumes:

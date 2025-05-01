@@ -12,7 +12,6 @@ export default function CustomNavbar() {
   const categories = [
     { name: 'Øreringe', path: '/products/earrings' },
     { name: 'Halskæder', path: '/products/necklaces' },
-    { name: 'Armbånd', path: '/products/bracelets' },
     { name: 'Ringe', path: '/products/rings' },
   ];
 

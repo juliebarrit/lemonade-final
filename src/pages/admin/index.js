@@ -83,12 +83,7 @@ export default function AdminPage({ authorized, products, error }) {
       
       await axios.post(
         `http://127.0.0.1:8000/api/products/${currentProduct.productID}`,
-        formData,
-        {
-          headers: { 
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        formData
       );
 
       setShowModal(false);

@@ -35,13 +35,7 @@ This repository contains a web shop application that works across both Windows a
    ```
    cd webshop-backend
    ```
-
-2. Install PHP dependencies:
-   ```
-   composer install
-   ```
-
-3. Set up environment file:
+2. Set up environment file:
    - Copy the example environment file: 
      - On Mac/Linux: `cp .env.example .env`
      - On Windows: `copy .env.example .env`
@@ -50,6 +44,11 @@ This repository contains a web shop application that works across both Windows a
      php artisan key:generate
      ```
 
+3. Install PHP dependencies:
+   ```
+   composer install
+   ```
+
 4. Set up the database:
    ```
    php artisan migrate
@@ -57,7 +56,7 @@ This repository contains a web shop application that works across both Windows a
 
 5. Start the Laravel server:
    ```
-   php artisan serve
+   
    ```
 
 ### Frontend Setup

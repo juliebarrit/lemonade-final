@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductList from '@/components/ProductList';
 import axios from 'axios';
-import Navbar from '@/components/Navbar';
+import Layout from '@/components/Layout';
 
 export async function getServerSideProps() {
   try {
@@ -34,9 +34,8 @@ export async function getServerSideProps() {
 
 export default function ProductPage({ products }) {
   return (
-    <>
-      <Navbar />
+    <Layout title="Halskæder">
       <ProductList products={products} title="Halskæder" />
-    </>
+    </Layout>
   );
 }

@@ -4,37 +4,33 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class FixForeignKeyOrderProducts extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('order_products', function (Blueprint $table) {
-            // Drop the existing foreign key if it exists
+            // Drop existing foreign keys if they exist
+            $table->dropForeign(['orderID']);
             $table->dropForeign(['productID']);
 
-            // Re-add the foreign key with the correct reference
+            // Add the foreign keys with correct references
+            $table->foreign('orderID')
+                  ->references('orderID')
+                  ->on('orders')
+                  ->onDelete('cascade');
+
             $table->foreign('productID')
-                ->references('id') // Ensure this references the correct primary key in the products table
-                ->on('products')
-                ->onDelete('cascade'); // Cascade delete related rows when a product is deleted
+                  ->references('productID')
+                  ->on('products')
+                  ->onDelete('restrict');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('order_products', function (Blueprint $table) {
-            // Drop the foreign key added in the up() method
+            $table->dropForeign(['orderID']);
             $table->dropForeign(['productID']);
         });
     }
-}
+};
