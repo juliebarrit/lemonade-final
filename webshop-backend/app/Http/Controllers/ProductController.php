@@ -15,20 +15,20 @@ class ProductController extends Controller
             Log::info('Attempting to create product:', $request->all());
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'type' => 'nullable|string|max:255', // Allow nullable type
+                'type' => 'nullable|string|max:255',
                 'price' => 'required|integer',
-                'color' => 'nullable|string|max:255', // Allow nullable color
+                'color' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate file upload and allow webp
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             ]);
 
             if ($request->hasFile('image')) {
-                $validated['image'] = $request->file('image')->store('images', 'public'); // Store file in 'public/images'
+                $validated['image'] = $request->file('image')->store('images', 'public');
             }
 
             $product = Product::create($validated);
 
-            return response()->json($product, 201); // Created
+            return response()->json($product, 201);
         } catch (\Exception $e) {
             Log::error('Error saving product:', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Failed to save product. ' . $e->getMessage()], 500); // Server Error
@@ -40,16 +40,16 @@ class ProductController extends Controller
         try {
             Log::info('Fetching all products'); // Debugging log
             $products = Product::all()->map(function ($product) {
-                $product->type = $product->type ?? 'Unknown'; // Default value for type
-                $product->color = $product->color ?? 'Not specified'; // Default value for color
-                $product->image = $product->image ? asset('storage/' . $product->image) : null; // Generate full URL for image
+                $product->type = $product->type ?? 'Unknown';
+                $product->color = $product->color ?? 'Not specified';
+                $product->image = $product->image ? asset('storage/' . $product->image) : null;
                 return $product;
             });
 
-            return response()->json($products, 200); // OK
+            return response()->json($products, 200);
         } catch (\Exception $e) {
             Log::error('Error fetching products:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500); // Server Error
+            return response()->json(['message' => 'Failed to fetch products. ' . $e->getMessage()], 500);
         }
     }
 
@@ -59,31 +59,30 @@ class ProductController extends Controller
             Log::info('Updating product:', ['id' => $id, 'data' => $request->all()]);
             \Log::info('Request data:', $request->all());
 
-            // Debug incoming data
             \Log::info('Request has name: ' . $request->has('name'));
             \Log::info('Request name value: ' . $request->input('name'));
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'type' => 'nullable|string|max:255',
-                'price' => 'required|numeric', // Changed to numeric to accept string numbers
+                'price' => 'required|numeric',
                 'color' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             ]);
 
             $product = Product::where('productID', $id)->firstOrFail();
- // Prepare the data for updating
+
             $updateData = [];
 
-            // Copy validated text fields
+
             foreach (['name', 'type', 'price', 'color', 'description'] as $field) {
                 if ($request->has($field)) {
                     $updateData[$field] = $request->input($field);
                 }
             }
 
-            // Handle image upload if present
+
             if ($request->hasFile('image')) {
                 $updateData['image'] = $request->file('image')->store('images', 'public');
             }
@@ -91,13 +90,13 @@ class ProductController extends Controller
             // Log the update data
             Log::info('Update data:', $updateData);
 
-            // Update the product
+
             $product->update($updateData);
 
             return response()->json($product, 200); // OK
         } catch (\Exception $e) {
             Log::error('Error updating product:', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to update product. ' . $e->getMessage()], 500); // Server Error
+            return response()->json(['message' => 'Failed to update product. ' . $e->getMessage()], 500);
         }
     }
 
@@ -107,9 +106,9 @@ class ProductController extends Controller
             Log::info('Attempting to soft delete product:', ['id' => $id]);
 
             $product = Product::where('productID', $id)->firstOrFail();
-            $product->delete(); // Dette vil nu være en blød sletning
+            $product->delete();
 
-            return response()->json(['message' => 'Produkt er blevet arkiveret.'], 200); // OK
+            return response()->json(['message' => 'Produkt er blevet arkiveret.'], 200);
         } catch (\Exception $e) {
             Log::error('Error deleting product:', ['error' => $e->getMessage()]);
             return response()->json([
@@ -118,12 +117,12 @@ class ProductController extends Controller
         }
     }
 
-    // Tilføj ny metode til at få alle produkter inklusiv slettede
+
     public function indexWithTrashed()
     {
         try {
             $products = Product::withTrashed()->get();
-            return response()->json($products, 200); // OK
+            return response()->json($products, 200); 
         } catch (\Exception $e) {
             return response()->json(['message' => 'Kunne ikke hente produkter'], 500); // Server Error
         }

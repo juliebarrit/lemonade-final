@@ -121,7 +121,7 @@ export default function ProductPage({ product }) {
           <Col md={12}>
             <div className="trust-indicators p-4 bg-light rounded">
               <h4 className="mb-3">Sikkerhed & Kvalitet</h4>
-              <div className="d-flex gap-4">
+              <div className="trust-items-container">
                 <div className="trust-item">
                   <i className="bi bi-shield-check me-2"></i>
                   <h5>Sikre Materialer</h5>
@@ -185,10 +185,25 @@ export default function ProductPage({ product }) {
         .trust-indicators {
           border: 1px solid #e0e0e0;
         }
+        .trust-items-container {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
         .trust-item {
           flex: 1;
+          min-width: 250px;
           text-align: center;
           padding: 20px;
+        }
+        @media (max-width: 768px) {
+          .trust-item {
+            flex: 1 1 100%;
+            min-width: 100%;
+          }
+          .trust-items-container {
+            gap: 2rem;
+          }
         }
         .trust-item h5 {
           font-size: 1.1rem;
